@@ -1,23 +1,19 @@
+import time
 import math
 import numpy as np
 import matplotlib.pyplot as plt
 
-from InterferogramGenerator import InterferogramGenerator
+from InterferogramGenerator import InterferogramGenerator, InterferogramFromRandomPolynomials
 from generateRandomPolynomial import generateRandomPolynomial
 
-def InterGen():
-    imSize = 512
-    InGen = InterferogramGenerator(imSize)
-
-    phaseObject = generateRandomPolynomial(imSize, 7)
-
+def InterGen(folder, imSize = 512, numberOfImages = 1000):
+    InGen = InterferogramFromRandomPolynomials(imSize)
     InGen.setFrequencyBoundaries(25, 50)
     InGen.setOrientationBoundaries(0, math.pi)
-    InGen.createMultipleInterferograms(phaseObject, 10, 10)
-    InGen.saveInterferograms()
+    InGen.generateALODI(10, 10, numberOfImages, folder)
 
-    plt.imshow(InGen.allInterferograms[42])
-    plt.show()
 
 if __name__ == "__main__":
-    InterGen()
+    start_time = time.time()
+    InterGen('C:\\Users\\koste\\Documents\\Python-Source-Codes\\InterGen\\Results\\', 512, 10000)
+    print("Execution time: %s sec" % (time.time() - start_time))
