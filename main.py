@@ -8,7 +8,7 @@ from generateRandomPolynomial import generateRandomPolynomial
 imSize = 512
 InGen = InterferogramGenerator(imSize)
 
-phaseObject = generateRandomPolynomial(imSize, 0)
+phaseObject = generateRandomPolynomial(imSize, 6)
 
 InGen.setFrequencyBoundaries(25, 50)
 InGen.setOrientationBoundaries(0, math.pi)

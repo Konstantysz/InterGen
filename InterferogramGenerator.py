@@ -50,7 +50,7 @@ class InterferogramGenerator:
         for i in range(len(self.allInterferograms)):
             rescaled = (255.0 / self.allInterferograms[i].max() * (self.allInterferograms[i] - self.allInterferograms[i].min())).astype(np.uint8)
             img = Image.fromarray(rescaled)
-            filename = 'C:\\Users\\koste\\Documents\\Python-Source-Codes\\Interferogram-Generator\\Results\\' + str(i) + '.bmp'
+            filename = 'C:\\Users\\koste\\Documents\\Python-Source-Codes\\InterGen\\Results\\' + str(i) + '.bmp'
             img.convert('RGB').save(filename)
 
 

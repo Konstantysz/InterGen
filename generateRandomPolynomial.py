@@ -5,7 +5,7 @@ def generateRandomPolynomial(imSize, n):
     y = np.linspace(-1, 1, imSize)
     X, Y = np.meshgrid(x, y)
 
-    a = np.random.uniform(-10, 10, n*3) * np.eye(n*3)
+    a = (10 * np.random.random_sample((3*n,)) - 5) * np.eye(n*3)
 
     XY = []
 
