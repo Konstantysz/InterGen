@@ -48,10 +48,13 @@ class InterferogramGenerator:
                 
     def saveInterferograms(self):
         for i in range(len(self.allInterferograms)):
-            rescaled = (255.0 / self.allInterferograms[i].max() * (self.allInterferograms[i] - self.allInterferograms[i].min())).astype(np.uint8)
+            rescaled = (255.0 / self.allInterferograms[i].max() * (self.allInterferograms[i] - self.allInterferograms[i].min())).astype(np.float64)
             img = Image.fromarray(rescaled)
             filename = 'C:\\Users\\koste\\Documents\\Python-Source-Codes\\InterGen\\Results\\' + str(i) + '.bmp'
             img.convert('RGB').save(filename)
+            # data = Image.fromarray(self.allInterferograms[i])
+            # filename = 'C:\\Users\\koste\\Documents\\Python-Source-Codes\\InterGen\\Results\\' + str(i) + '.bmp'
+            # data.save(filename)
 
 
 class InterferogramFromRandomPolynomials(InterferogramGenerator):
