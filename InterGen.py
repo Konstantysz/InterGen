@@ -15,5 +15,5 @@ def InterGen(folder, imSize = 512, numberOfImages = 1000):
 
 if __name__ == "__main__":
     start_time = time.time()
-    InterGen('C:\\Users\\koste\\Documents\\Python-Source-Codes\\InterGen\\Results\\', 512, 2000)
-    print("Execution time: %s sec" % (time.time() - start_time))
+    InterGen('C:\\Users\\koste\\Documents\\Python-Source-Codes\\InterGen\\Results\\', 512, 100)
+    print("Execution time: %.2f sec" % (time.time() - start_time))
