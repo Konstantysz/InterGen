@@ -4,6 +4,7 @@ from PIL import Image, ImageOps
 
 from gauss_n import gauss_n
 from generateRandomPolynomial import generateRandomPolynomial
+from progressBar import progressBar
 
 class InterferogramGenerator:
     
@@ -57,6 +58,12 @@ class InterferogramGenerator:
 
 class InterferogramFromRandomPolynomials(InterferogramGenerator):
     
+    def saveInterferogram(self, image, folder, interferogramNumber):
+            rescaled = (255.0 / image.max() * (image - image.min())).astype(np.float64)
+            img = Image.fromarray(rescaled)
+            filename = folder + str(interferogramNumber) + '.bmp'
+            img.convert('RGB').save(filename)
+
     ### Method to generate A Lot Of Different Interferograms
     def generateALODI(self, numOfFrequencies, numOfOrientations, quantity, folder):
         nbOfObjects = quantity / (numOfFrequencies * numOfOrientations)
@@ -69,11 +76,6 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
 
             for j in range(1, numOfFrequencies + 1):
                 for k in range(numOfOrientations):
-                    self.allInterferograms.append(self.createInterferogram(angleScalar * k, freqScalar * j, obj))
-
-            self.saveInterferograms(folder, int(numOfOrientations*numOfFrequencies*i))
-            self.allInterferograms = []
-
-            print("Progress: " + str(i + 1) + "/" + str(int(nbOfObjects)))
-
-
+                    itNum = i * (numOfFrequencies*numOfOrientations) + (j - 1) * numOfOrientations + k
+                    self.saveInterferogram(self.createInterferogram(angleScalar * k, freqScalar * j, obj), folder, itNum)
+                    progressBar(itNum+1, quantity, "Interferogram generation progress: ")
