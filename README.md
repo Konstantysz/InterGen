@@ -13,6 +13,7 @@ To run this project you have to install `numpy` and `matplotlib`
 ```
 pip install numpy
 pip install matplotlib
+pip install PIL
 ```
 
 ### Installing

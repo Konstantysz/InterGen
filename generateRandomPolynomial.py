@@ -1,8 +1,8 @@
 import numpy as np
 
 def generateRandomPolynomial(imSize, n):
-    x = np.linspace(-2, 2, imSize)
-    y = np.linspace(-2, 2, imSize)
+    x = np.linspace(-1, 1, imSize)
+    y = np.linspace(-1, 1, imSize)
     X, Y = np.meshgrid(x, y)
 
     a = (2 * np.random.random_sample((3*n,)) - 1) * np.eye(n*3)

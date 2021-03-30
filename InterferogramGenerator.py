@@ -67,15 +67,18 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
     ### Method to generate A Lot Of Different Interferograms
     def generateALODI(self, numOfFrequencies, numOfOrientations, quantity, folder):
         nbOfObjects = quantity / (numOfFrequencies * numOfOrientations)
-        freqScalar = (self._maxFrequency - self._minFrequency) / numOfFrequencies
-        angleScalar = (self._maxOrientationAngle - self._minOrientationAngle) / numOfOrientations
         
         for i in range(int(nbOfObjects)):
-            degree = np.random.randint(5) + 5
+            # degree = np.random.randint(4) +  1
+            degree = 3
             obj = generateRandomPolynomial(self._size, degree)
 
-            for j in range(1, numOfFrequencies + 1):
+            for j in range(numOfFrequencies):
                 for k in range(numOfOrientations):
-                    itNum = i * (numOfFrequencies*numOfOrientations) + (j - 1) * numOfOrientations + k
-                    self.saveInterferogram(self.createInterferogram(angleScalar * k, freqScalar * j, obj), folder, itNum)
-                    progressBar(itNum+1, quantity, "Interferogram generation progress: ")
+                    freq = np.random.randint(self._minFrequency, self._maxFrequency)
+                    angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
+                    itNum = i * (numOfFrequencies*numOfOrientations) + j * numOfOrientations + k + 1
+
+                    self.setBackgroundFunction(generateRandomPolynomial(self._size, 10))
+                    self.saveInterferogram(self.createInterferogram(angle, freq, obj), folder, itNum)
+                    progressBar(itNum, quantity, "Interferogram generation progress: ")
