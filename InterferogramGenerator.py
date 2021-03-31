@@ -79,6 +79,10 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                     angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
                     itNum = i * (numOfFrequencies*numOfOrientations) + j * numOfOrientations + k + 1
 
-                    self.setBackgroundFunction(generateRandomPolynomial(self._size, 10))
+                    bg = generateRandomPolynomial(self._size, 10)
+                    max_abs = max(bg.min(), bg.max(), key=abs)
+                    bg = bg / max_abs
+
+                    self.setBackgroundFunction(bg)
                     self.saveInterferogram(self.createInterferogram(angle, freq, obj), folder, itNum)
                     progressBar(itNum, quantity, "Interferogram generation progress: ")

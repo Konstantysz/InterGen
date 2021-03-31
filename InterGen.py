@@ -38,4 +38,4 @@ if __name__ == "__main__":
 # Dodać sfere i funkcje liniowe
 # losowo czestości i orientacje <- Done
 # zrobić porządne readme.md <- WIP
-# dawać różne tło -> Zakres tła od 0 do jakiejś liczby żeby nie było prześwietlenia czy czegoś
+# dawać różne tło 
