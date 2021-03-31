@@ -7,40 +7,152 @@ from generateRandomPolynomial import generateRandomPolynomial
 from progressBar import progressBar
 
 class InterferogramGenerator:
-    
+    """
+    A class used to generate interferogram
+
+    ...
+
+    Attributes
+    ----------
+    allInterferograms : numpy.ndarray
+        array that stores images of interferograms (Optional to use)
+    _X, _Y : numpy.ndarray
+        distribution of values from -1 to 1
+    _size : int
+        size of the interferogram image
+    _minFrequency : int
+        minimal spatial frequency of fringe pattern
+    _maxFrequency : int
+        maximal spatial frequency of fringe pattern
+    _minOrientationAngle : float
+        minimal orientation angle of fringe pattern
+    _maxOrientationAngle : float
+        maximal orientation angle of fringe pattern
+    _a : numpy.ndarray
+        function of background of fringe pattern
+    _b : numpy.ndarray
+        function of amplitude of fringe pattern
+    _n : numpy.ndarray
+        function of noise of fringe pattern
+
+    Methods
+    -------
+    setFrequencyBoundaries(minF, maxF)
+        Sets range of spatial frequencies of interferogram
+    setOrientationBoundaries(minOA, maxOA)
+        Sets range of orientations of interferogram
+    setBackgroundFunction(background)
+        Sets background function of interferogram
+    setNoiseFunction(noise)
+        Sets noise function of interferogram
+    createInterferogram(angle, frequency, codedObject)
+        Returns single interferogram image
+    createMultipleInterferograms(codedObject, numOfFrequencies, numOfOrientations)
+        Creates multiple interferogram images and stores them in `self.allInterferograms`
+    saveInterferograms(folder, startNum = 0)
+        Saves interferograms stored in `self.allInterferograms`
+    """
     allInterferograms = []
     
     def __init__(self, N):
+        """
+        Parameters
+        ----------
+        N : int
+            Size of the image
+        """
         self._X, self._Y = np.meshgrid(np.linspace(-1, 1, N), np.linspace(-1, 1, N))
         self._size = N
         self._minFrequency = 1
         self._maxFrequency = 1000
-        self._minOrientationAngle = 0
+        self._minOrientationAngle = 0.0
         self._maxOrientationAngle = math.pi
         self._a = gauss_n(self._size)
         self._b = 1.0
         self._n = 0.075*np.random.normal(0.0, 1.0, (self._size, self._size))
     
     def setFrequencyBoundaries(self, minF, maxF):
+        '''
+        Sets range of spatial frequencies of interferogram
+
+        Parameters
+        ----------
+        minF : int
+            minimal spatial frequency of fringe pattern
+        maxF : int
+            maximal spatial frequency of fringe pattern
+        '''
         self._minFrequency = minF
         self._maxFrequency = maxF
         
     def setOrientationBoundaries(self, minOA, maxOA):
+        '''
+        Sets range of orientations of interferogram
+
+        Parameters
+        ----------
+        minOA : float
+            minimal orientation angle of fringe pattern
+        maxOA : float
+            maximal orientation angle of fringe pattern
+        '''
         self._minOrientationAngle = minOA
         self._maxOrientationAngle = maxOA
         
     def setBackgroundFunction(self, background):
+        '''
+        Sets background function of interferogram
+
+        Parameters
+        ----------
+        background : numpy.ndarray
+            function of background of fringe pattern
+        '''
         self._a = background
         
     def setNoiseFunction(self, noise):
+        '''
+        Sets noise function of interferogram
+
+        Parameters
+        ----------
+        noise : numpy.ndarray
+            function of noise of fringe pattern
+        '''
         self._n = noise
         
     def createInterferogram(self, angle, frequency, codedObject):
+        '''
+        Returns single interferogram image
+
+        Attributes
+        ----------
+        angle : float
+            orientation angle of fringe pattern
+        frequency : int
+            spatial frequency of fringe pattern
+        codedObject : numpy.ndarray
+            object to be coded in the phase of the interferogram
+        '''
         phase = math.pi * (math.cos(angle) * self._X + math.sin(angle) * self._Y) + codedObject
         I = self._a + self._b*np.cos(frequency * phase) + self._n
         return I
     
     def createMultipleInterferograms(self, codedObject, numOfFrequencies, numOfOrientations):
+        '''
+        Creates multiple interferogram images and stores them in `self.allInterferograms`
+
+        Attributes
+        ----------
+        codedObject : numpy.ndarray
+            object to be coded in the phase of the interferogram
+        numOfFrequencies : int
+            number of different spatial frequencies of 
+            fringe pattern to be used for single coded object
+        numOfOrientations : int
+            number of different orientations of fringe 
+            pattern to be used for single coded object
+        '''
         freqScalar = (self._maxFrequency - self._minFrequency) / numOfFrequencies
         angleScalar = (self._maxOrientationAngle - self._minOrientationAngle) / numOfOrientations
         
@@ -49,6 +161,16 @@ class InterferogramGenerator:
                 self.allInterferograms.append(self.createInterferogram(angleScalar * j, freqScalar * i, codedObject))
                 
     def saveInterferograms(self, folder, startNum = 0):
+        '''
+        Saves interferograms stored in `self.allInterferograms`
+
+        Attributes
+        ----------
+        folder : str
+            path to folder in which images will be saved
+        startNum : int
+            starting number for numeration of filenames (Default is 0)
+        '''
         for i in range(len(self.allInterferograms)):
             rescaled = (255.0 / self.allInterferograms[i].max() * (self.allInterferograms[i] - self.allInterferograms[i].min())).astype(np.float64)
             img = Image.fromarray(rescaled)
@@ -69,7 +191,6 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
         nbOfObjects = quantity / (numOfFrequencies * numOfOrientations)
         
         for i in range(int(nbOfObjects)):
-            # degree = np.random.randint(4) +  1
             degree = 3
             obj = generateRandomPolynomial(self._size, degree)
 
