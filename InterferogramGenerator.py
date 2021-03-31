@@ -179,21 +179,59 @@ class InterferogramGenerator:
 
 
 class InterferogramFromRandomPolynomials(InterferogramGenerator):
-    
-    def saveInterferogram(self, image, folder, interferogramNumber):
-            rescaled = (255.0 / image.max() * (image - image.min())).astype(np.float64)
-            img = Image.fromarray(rescaled)
-            filename = folder + str(interferogramNumber) + '.bmp'
-            img.convert('RGB').save(filename)
+    """
+    Class derived from `InterferogramGenerator` used to generate interferograms from random polynomial functions encoded in object and in background function
 
-    ### Method to generate A Lot Of Different Interferograms
+    ...
+
+    Methods
+    -------
+    saveInterferogram(image, folder, interferogramNumber)
+        Sets range of spatial frequencies of interferogram
+    generateALODI(numOfFrequencies, numOfOrientations, quantity, folder)
+        Method to generate A Lot Of Different Interferograms
+    """
+    def saveInterferogram(self, image, folder, interferogramNumber):
+        '''
+        Saves single interferogram
+
+        Attributes
+        ----------
+        image : numpy.ndarray
+            interferogram to be saved
+        folder : str
+            path to folder in which image will be saved
+        interferogramNumber : int
+            number that is going to be filename
+        '''
+        rescaled = (255.0 / image.max() * (image - image.min())).astype(np.float64)
+        img = Image.fromarray(rescaled)
+        filename = folder + str(interferogramNumber) + '.bmp'
+        img.convert('RGB').save(filename)
+
     def generateALODI(self, numOfFrequencies, numOfOrientations, quantity, folder):
+        '''
+        Generates multiple interferograms. Quantity is specified by user. 
+        Interferograms are generated with random object in phase and random background function.
+
+        Attributes
+        ----------
+        numOfFrequencies : int
+            number of different frequencies of fringe pattern that single pattern will be generated with
+        numOfOrientations : int
+            number of different frequencies of fringe pattern that single pattern will be generated with
+        quantity : int
+            number of all generated interferograms
+        folder : str
+            path to folder in which image will be saved
+        '''
         nbOfObjects = quantity / (numOfFrequencies * numOfOrientations)
         
         for i in range(int(nbOfObjects)):
             degree = 3
             obj = generateRandomPolynomial(self._size, degree)
 
+            # Tak te pętle nie mają sensu xD
             for j in range(numOfFrequencies):
                 for k in range(numOfOrientations):
                     freq = np.random.randint(self._minFrequency, self._maxFrequency)
