@@ -18,7 +18,8 @@ pip install PIL
 
 ### Running
 
-To run this project you have to run `InterGen.py`
+To run this project you have to run `InterGen.py`.
+
 If you want to edit generation parameters modify file `settings.json`.
 
 ## Authors
