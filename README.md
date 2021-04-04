@@ -4,7 +4,7 @@ Python interferogram generator.
 
 ## Getting Started
 
-This project was created to make learn data for neural network.
+This project was created to make data set for neural network.
 
 ### Prerequisites
 
@@ -16,9 +16,11 @@ pip install matplotlib
 pip install PIL
 ```
 
-### Installing
+### Running
 
-To run this project you have to run `InterGen.py`
+To run this project you have to run `InterGen.py`.
+
+If you want to edit generation parameters modify file `settings.json`.
 
 ## Authors
 
