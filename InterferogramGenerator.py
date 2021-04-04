@@ -226,10 +226,16 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
             path to folder in which image will be saved
         '''
         nbOfObjects = quantity / (numOfFrequencies * numOfOrientations)
-        
+
         for i in range(int(nbOfObjects)):
+            objType = np.random.choice(np.arange(3), p=[0.05, 0.05, 0.9])
             degree = 3
-            obj = generateRandomPolynomial(self._size, degree)
+            objTypes = dict([
+                (0, generateRandomPolynomial(self._size, 1)),       # Prazki liniowe
+                (1,  np.zeros((self._size, self._size))),           # Prazki okragle
+                (2, generateRandomPolynomial(self._size, degree))   # Prazki przerozne
+                ])
+            obj = objTypes[objType]
 
             # Tak te pętle nie mają sensu xD
             for j in range(numOfFrequencies):

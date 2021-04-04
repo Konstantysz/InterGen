@@ -30,12 +30,9 @@ def InterGen(results_folder):
 
 
 if __name__ == "__main__":
-    start_time = time.time()
+    start_time = time.time()f
     InterGen('.\\Results\\')
     print("Execution time: %.2f sec" % (time.time() - start_time))
 
 
 # Dodać sfere i funkcje liniowe
-# losowo czestości i orientacje <- Done
-# zrobić porządne readme.md <- WIP
-# dawać różne tło <- Done
