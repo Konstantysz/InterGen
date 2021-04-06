@@ -27,12 +27,7 @@ def InterGen(results_folder):
         results_folder
         )
 
-
-
 if __name__ == "__main__":
     start_time = time.time()
     InterGen('.\\Results\\')
     print("Execution time: %.2f sec" % (time.time() - start_time))
-
-
-# Dodać sfere i funkcje liniowe

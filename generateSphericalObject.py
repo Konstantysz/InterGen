@@ -1,17 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def generateSphericalObject(imSize):
+def generateSphericalObject(imSize, x0 = 0, y0 = 0, f = 1, h = 0):
     x = np.linspace(-1, 1, imSize)
     y = np.linspace(-1, 1, imSize)
     X, Y = np.meshgrid(x, y)
 
-    res = 2*np.power(X,2) + 2*np.power(Y,2)
-
-    # Z2 = np.full((imSize, imSize), 1) - (np.power(X,2) + np.power(Y,2))
-    # Z2 = (Z2 + 1) / 2
-    # res = np.sqrt(Z2)
-    # plt.imshow(res)
-    # plt.show()
-
-    return res
+    return f*(np.power(X - x0,2) + np.power(Y - y0,2)) + h

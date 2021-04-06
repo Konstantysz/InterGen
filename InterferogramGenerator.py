@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import math
 from PIL import Image, ImageOps
@@ -122,7 +123,7 @@ class InterferogramGenerator:
         '''
         self._n = noise
         
-    def createInterferogram(self, angle, frequency, codedObject):
+    def createInterferogram(self, angle, frequency, phaseObject):
         '''
         Returns single interferogram image
 
@@ -132,20 +133,40 @@ class InterferogramGenerator:
             orientation angle of fringe pattern
         frequency : int
             spatial frequency of fringe pattern
-        codedObject : numpy.ndarray
+        phaseObject : numpy.ndarray
             object to be coded in the phase of the interferogram
         '''
-        phase = math.pi * (math.cos(angle) * self._X + math.sin(angle) * self._Y) + codedObject
-        I = self._a + self._b*np.cos(frequency * phase) + self._n
+        angle = math.pi / 2 * (math.cos(angle) * self._X + math.sin(angle) * self._Y) + phaseObject
+        I = self._a + self._b*np.cos(frequency * angle) + self._n
         return I
     
-    def createMultipleInterferograms(self, codedObject, numOfFrequencies, numOfOrientations):
+    def createSphericalInterferogram(self, x0 = 0, y0 = 0, f = 1, h = 0):
+        '''
+        Returns single interferogram image of spherical fringes
+
+        Attributes
+        ----------
+        x0 : float
+            shift of sphere in x axis
+        y0 : float
+            shift of sphere in y axis
+        f : float
+            scale sphere in z axis (change of frequency of fringes)
+        h : float
+            shift of sphere in z axis (change of phase of fringes)
+        '''
+        phaseObject = generateSphericalObject(self._size, x0, y0, f, h)
+        I = self._a + self._b*np.cos(phaseObject) + self._n
+        return I
+    
+
+    def createMultipleInterferograms(self, phaseObject, numOfFrequencies, numOfOrientations):
         '''
         Creates multiple interferogram images and stores them in `self.allInterferograms`
 
         Attributes
         ----------
-        codedObject : numpy.ndarray
+        phaseObject : numpy.ndarray
             object to be coded in the phase of the interferogram
         numOfFrequencies : int
             number of different spatial frequencies of 
@@ -159,7 +180,7 @@ class InterferogramGenerator:
         
         for i in range(1, numOfFrequencies):
             for j in range(numOfOrientations+1):
-                self.allInterferograms.append(self.createInterferogram(angleScalar * j, freqScalar * i, codedObject))
+                self.allInterferograms.append(self.createInterferogram(angleScalar * j, freqScalar * i, phaseObject))
                 
     def saveInterferograms(self, folder, startNum = 0):
         '''
@@ -229,26 +250,35 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
         nbOfObjects = quantity / (numOfFrequencies * numOfOrientations)
 
         for i in range(int(nbOfObjects)):
-            objType = np.random.choice(np.arange(3), p=[0.05, 0.05, 0.9])
+            objType = np.random.choice(np.arange(3), p=[0.01, 0.09, 0.9])
             degree = 3
             objTypes = dict([
                 (0, generateRandomPolynomial(self._size, 1)),       # Prazki liniowe
-                (1, generateSphericalObject(self._size)),           # Prazki okragle
+                # (1, generateSphericalObject(self._size)),           # Prazki okragle
                 (2, generateRandomPolynomial(self._size, degree))   # Prazki przerozne
                 ])
-            obj = objTypes[objType]
+            if (objType != 1):
+                obj = objTypes[objType]
 
             # Tak te pętle nie mają sensu xD
             for j in range(numOfFrequencies):
                 for k in range(numOfOrientations):
-                    freq = np.random.randint(self._minFrequency, self._maxFrequency)
-                    angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
                     itNum = i * (numOfFrequencies*numOfOrientations) + j * numOfOrientations + k + 1
 
                     bg = generateRandomPolynomial(self._size, 10)
                     max_abs = max(bg.min(), bg.max(), key=abs)
                     bg = bg / max_abs
-
                     self.setBackgroundFunction(bg)
-                    self.saveInterferogram(self.createInterferogram(angle, freq, obj), folder, itNum)
+                    
+                    if objType == 1:
+                        x0 = np.random.uniform(-0.5, 0.5)
+                        y0 = np.random.uniform(-0.5, 0.5)
+                        f = np.random.randint(0.5 * self._minFrequency, 2 * self._maxFrequency)
+                        h = np.random.randint(-3, 3)
+                        self.saveInterferogram(self.createSphericalInterferogram(x0, y0, f, h), folder, itNum)
+                    else:
+                        freq = np.random.randint(self._minFrequency, self._maxFrequency)
+                        angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
+                        self.saveInterferogram(self.createInterferogram(angle, freq, obj), folder, itNum)
+
                     progressBar(itNum, quantity, "Interferogram generation progress: ")
