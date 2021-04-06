@@ -4,6 +4,7 @@ from PIL import Image, ImageOps
 
 from gauss_n import gauss_n
 from generateRandomPolynomial import generateRandomPolynomial
+from generateSphericalObject import generateSphericalObject
 from progressBar import progressBar
 
 class InterferogramGenerator:
@@ -232,7 +233,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
             degree = 3
             objTypes = dict([
                 (0, generateRandomPolynomial(self._size, 1)),       # Prazki liniowe
-                (1,  np.zeros((self._size, self._size))),           # Prazki okragle
+                (1, generateSphericalObject(self._size)),           # Prazki okragle
                 (2, generateRandomPolynomial(self._size, degree))   # Prazki przerozne
                 ])
             obj = objTypes[objType]
