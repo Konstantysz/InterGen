@@ -1,10 +1,8 @@
+from numba import jit
 import numpy as np
 
-def generateRandomPolynomial(imSize, n):
-    x = np.linspace(-1, 1, imSize)
-    y = np.linspace(-1, 1, imSize)
-    X, Y = np.meshgrid(x, y)
-
+@jit(nopython=True, parallel=True)
+def generateRandomPolynomial(X, Y, n):
     a = (2 * np.random.random_sample((3*n,)) - 1) * np.eye(n*3)
 
     XY = []
@@ -19,8 +17,9 @@ def generateRandomPolynomial(imSize, n):
         XY.append(Y)
         XY.append(X**(0)*Y**(0))
 
-    XY = np.array(XY)
-    res = np.zeros((imSize, imSize))
+    # print(len(XY))
+    # XY_list = np.array(XY)
+    res = np.zeros(X.shape)
     for i in range(3*n):
         res = res + a[i, i] * XY[i]
 

@@ -1,7 +1,8 @@
-import matplotlib.pyplot as plt
+from numba import jit
 import numpy as np
 import math
 from PIL import Image, ImageOps
+import matplotlib.pyplot as plt
 
 from gauss_n import gauss_n
 from generateRandomPolynomial import generateRandomPolynomial
@@ -122,7 +123,7 @@ class InterferogramGenerator:
             function of noise of fringe pattern
         '''
         self._n = noise
-        
+
     def createInterferogram(self, angle, frequency, phaseObject):
         '''
         Returns single interferogram image
@@ -140,7 +141,7 @@ class InterferogramGenerator:
         I = self._a + self._b*np.cos(frequency * angle) + self._n
         return I
     
-    def createSphericalInterferogram(self, x0 = 0, y0 = 0, f = 1, h = 0):
+    def createSphericalInterferogram(self, X, Y, x0 = 0, y0 = 0, f = 1, h = 0):
         '''
         Returns single interferogram image of spherical fringes
 
@@ -155,7 +156,7 @@ class InterferogramGenerator:
         h : float
             shift of sphere in z axis (change of phase of fringes)
         '''
-        phaseObject = generateSphericalObject(self._size, x0, y0, f, h)
+        phaseObject = generateSphericalObject(X, Y, x0, y0, f, h)
         I = self._a + self._b*np.cos(phaseObject) + self._n
         return I
     
@@ -247,20 +248,23 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
         folder : str
             path to folder in which image will be saved
         '''
+        x = np.linspace(-1, 1, self._size)
+        y = np.linspace(-1, 1, self._size)
+        X, Y = np.meshgrid(x, y)
 
         for i in range(quantity):
-            objType = np.random.choice(np.arange(3), p=[0.01, 0.09, 0.9])
+            objType = np.random.choice(np.arange(3), p=[0.01, 0.04, 0.95])
             '''
             0 -> Prazki liniowe
             1 -> Prazki kolowe
             2 -> Prazki wielomianowe stopnia najwyzej 3
             '''
             if objType == 0:
-                obj = generateRandomPolynomial(self._size, 1)
+                obj = generateRandomPolynomial(X, Y, 1)
             elif objType == 2:
-                obj = generateRandomPolynomial(self._size, 3)
+                obj = generateRandomPolynomial(X, Y, 3)
 
-            bg = generateRandomPolynomial(self._size, 10)
+            bg = generateRandomPolynomial(X, Y, 10)
             max_abs = max(bg.min(), bg.max(), key=abs)
             bg = bg / max_abs
             self.setBackgroundFunction(bg)
@@ -270,7 +274,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 y0 = np.random.uniform(-0.5, 0.5)
                 f = np.random.randint(0.5 * self._minFrequency, 2 * self._maxFrequency)
                 h = np.random.randint(-3, 3)
-                self.saveInterferogram(self.createSphericalInterferogram(x0, y0, f, h), folder, i)
+                self.saveInterferogram(self.createSphericalInterferogram(X, Y, x0, y0, f, h), folder, i)
             else:
                 freq = np.random.randint(self._minFrequency, self._maxFrequency)
                 angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)

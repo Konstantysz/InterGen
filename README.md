@@ -14,6 +14,7 @@ To run this project you have to install `numpy` and `matplotlib`
 pip install numpy
 pip install matplotlib
 pip install PIL
+pip install numba
 ```
 
 ### Running
