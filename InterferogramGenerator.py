@@ -247,38 +247,33 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
         folder : str
             path to folder in which image will be saved
         '''
-        nbOfObjects = quantity / (numOfFrequencies * numOfOrientations)
 
-        for i in range(int(nbOfObjects)):
+        for i in range(quantity):
             objType = np.random.choice(np.arange(3), p=[0.01, 0.09, 0.9])
-            degree = 3
-            objTypes = dict([
-                (0, generateRandomPolynomial(self._size, 1)),       # Prazki liniowe
-                # (1, generateSphericalObject(self._size)),           # Prazki okragle
-                (2, generateRandomPolynomial(self._size, degree))   # Prazki przerozne
-                ])
-            if (objType != 1):
-                obj = objTypes[objType]
+            '''
+            0 -> Prazki liniowe
+            1 -> Prazki kolowe
+            2 -> Prazki wielomianowe stopnia najwyzej 3
+            '''
+            if objType == 0:
+                obj = generateRandomPolynomial(self._size, 1)
+            elif objType == 2:
+                obj = generateRandomPolynomial(self._size, 3)
 
-            # Tak te pętle nie mają sensu xD
-            for j in range(numOfFrequencies):
-                for k in range(numOfOrientations):
-                    itNum = i * (numOfFrequencies*numOfOrientations) + j * numOfOrientations + k + 1
-
-                    bg = generateRandomPolynomial(self._size, 10)
-                    max_abs = max(bg.min(), bg.max(), key=abs)
-                    bg = bg / max_abs
-                    self.setBackgroundFunction(bg)
+            bg = generateRandomPolynomial(self._size, 10)
+            max_abs = max(bg.min(), bg.max(), key=abs)
+            bg = bg / max_abs
+            self.setBackgroundFunction(bg)
                     
-                    if objType == 1:
-                        x0 = np.random.uniform(-0.5, 0.5)
-                        y0 = np.random.uniform(-0.5, 0.5)
-                        f = np.random.randint(0.5 * self._minFrequency, 2 * self._maxFrequency)
-                        h = np.random.randint(-3, 3)
-                        self.saveInterferogram(self.createSphericalInterferogram(x0, y0, f, h), folder, itNum)
-                    else:
-                        freq = np.random.randint(self._minFrequency, self._maxFrequency)
-                        angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
-                        self.saveInterferogram(self.createInterferogram(angle, freq, obj), folder, itNum)
+            if objType == 1:
+                x0 = np.random.uniform(-0.5, 0.5)
+                y0 = np.random.uniform(-0.5, 0.5)
+                f = np.random.randint(0.5 * self._minFrequency, 2 * self._maxFrequency)
+                h = np.random.randint(-3, 3)
+                self.saveInterferogram(self.createSphericalInterferogram(x0, y0, f, h), folder, i)
+            else:
+                freq = np.random.randint(self._minFrequency, self._maxFrequency)
+                angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
+                self.saveInterferogram(self.createInterferogram(angle, freq, obj), folder, i)
 
-                    progressBar(itNum, quantity, "Interferogram generation progress: ")
+            progressBar(i + 1, quantity, "Interferogram generation progress: ")
