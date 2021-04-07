@@ -8,7 +8,7 @@ This project was created to make data set for neural network.
 
 ### Prerequisites
 
-To run this project you have to install `numpy` and `matplotlib`
+To run this project you have to install following packages:
 
 ```
 pip install numpy
