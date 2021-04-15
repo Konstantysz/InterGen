@@ -17,7 +17,7 @@ def divergence(f):
     grad = [np.gradient(f[i], axis=i) for i in range(num_dims)]
     return grad[0] + grad[1]
 
-def chambolleProjection(f, f_ref, iterations = 2000, mi = 100, tau = 0.25):
+def chambolleProjection(f, f_ref, bg_ref, iterations = 2000, mi = 100, tau = 0.25):
     xi = np.array([np.zeros(f.shape), np.zeros(f.shape)])
     x1 = np.zeros(f.shape)
     x2 = np.zeros(f.shape)
@@ -28,7 +28,7 @@ def chambolleProjection(f, f_ref, iterations = 2000, mi = 100, tau = 0.25):
     pp = []
     pr = 1.0
 
-    err_min = 1000000000000000000.0
+    err_min = 1.0
     err_min_it = 0    
 
     for i in range(iterations):
@@ -38,8 +38,8 @@ def chambolleProjection(f, f_ref, iterations = 2000, mi = 100, tau = 0.25):
         xi = np.divide(xi + tau * gdv, 1 + tau * d)
 
         x2 = mi * divergence(xi)
-        diff_err = x2 - f_ref
-        err_i = np.sqrt(np.mean(np.power(diff_err, 2)))
+        diff_err = normalizeImage(x2) - f_ref
+        err_i = np.sqrt(np.mean(np.power(diff_err, 2))) / np.sqrt(np.mean(np.power(f_ref, 2)))
         # err_i = np.linalg.norm(x2 - f_ref) / np.linalg.norm(f_ref)
         err.append(err_i)
         # err.append(np.linalg.norm(x2 - x1) / np.linalg.norm(f))
@@ -63,11 +63,11 @@ def chambolleProjection(f, f_ref, iterations = 2000, mi = 100, tau = 0.25):
     plt.subplot(2, 2, 1)
     plt.imshow(f)
     plt.subplot(2, 2, 2)
-    plt.imshow(f - x_best)
+    plt.imshow(x_best)
     plt.subplot(2, 2, 3)
     plt.imshow(f_ref)
     plt.subplot(2, 2, 4)
-    plt.imshow(x_best)
+    plt.imshow(bg_ref)
     plt.show()
 
     plt.plot(err)

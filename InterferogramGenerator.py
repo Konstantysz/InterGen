@@ -275,7 +275,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 refI = normalizeImage(self._b*np.cos(spObj))
                 refBG = normalizeImage(bg)
 
-                chambolleProjection(I, refBG)
+                chambolleProjection(I, refI, refBG)
 
                 self.saveInterferogram(I, folder, i)
             else:
@@ -288,7 +288,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 )
                 refBG = normalizeImage(bg)
 
-                chambolleProjection(I, refBG)
+                chambolleProjection(I, refI, refBG)
 
                 self.saveInterferogram(I, folder, i)
 
