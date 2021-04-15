@@ -1,6 +1,6 @@
 {
     "Image_Size": 512,
-    "Number_Of_Images": 1000,
+    "Number_Of_Images": 10,
     "Frequencies": {
         "Frequencies_Per_Object": 1,
         "Min_Frequency": 15,

@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from gauss_n import gauss_n
 from generateRandomPolynomial import generateRandomPolynomial
 from generateSphericalObject import generateSphericalObject
+from chambolleProjection import chambolleProjection
+from normalizeImage import normalizeImage
 from progressBar import progressBar
 
 class InterferogramGenerator:
@@ -141,23 +143,16 @@ class InterferogramGenerator:
         I = self._a + self._b*np.cos(frequency * angle) + self._n
         return I
     
-    def createSphericalInterferogram(self, X, Y, x0 = 0, y0 = 0, f = 1, h = 0):
+    def createSphericalInterferogram(self, obj):
         '''
         Returns single interferogram image of spherical fringes
 
         Attributes
         ----------
-        x0 : float
+        obj : ndArray
             shift of sphere in x axis
-        y0 : float
-            shift of sphere in y axis
-        f : float
-            scale sphere in z axis (change of frequency of fringes)
-        h : float
-            shift of sphere in z axis (change of phase of fringes)
         '''
-        phaseObject = generateSphericalObject(X, Y, x0, y0, f, h)
-        I = self._a + self._b*np.cos(phaseObject) + self._n
+        I = self._a + self._b*np.cos(obj) + self._n
         return I
     
 
@@ -274,10 +269,27 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 y0 = np.random.uniform(-0.5, 0.5)
                 f = np.random.randint(0.5 * self._minFrequency, 2 * self._maxFrequency)
                 h = np.random.randint(-3, 3)
-                self.saveInterferogram(self.createSphericalInterferogram(X, Y, x0, y0, f, h), folder, i)
+
+                spObj = generateSphericalObject(X, Y, x0, y0, f, h)
+                I = normalizeImage(self.createSphericalInterferogram(spObj))
+                refI = normalizeImage(self._b*np.cos(spObj))
+                refBG = normalizeImage(bg)
+
+                chambolleProjection(I, refBG)
+
+                self.saveInterferogram(I, folder, i)
             else:
                 freq = np.random.randint(self._minFrequency, self._maxFrequency)
                 angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
-                self.saveInterferogram(self.createInterferogram(angle, freq, obj), folder, i)
+
+                I = normalizeImage(self.createInterferogram(angle, freq, obj))
+                refI = normalizeImage(
+                    self._b*np.cos(freq * (math.pi / 2 * (math.cos(angle) * self._X + math.sin(angle) * self._Y) + obj))
+                )
+                refBG = normalizeImage(bg)
+
+                chambolleProjection(I, refBG)
+
+                self.saveInterferogram(I, folder, i)
 
             progressBar(i + 1, quantity, "Interferogram generation progress: ")
