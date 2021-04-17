@@ -4,6 +4,8 @@ import math
 from PIL import Image, ImageOps
 import matplotlib.pyplot as plt
 
+from bm3d import bm3d
+
 from gauss_n import gauss_n
 from generateRandomPolynomial import generateRandomPolynomial
 from generateSphericalObject import generateSphericalObject
@@ -259,7 +261,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
             elif objType == 2:
                 obj = generateRandomPolynomial(X, Y, 3)
 
-            bg = generateRandomPolynomial(X, Y, 10)
+            bg = generateRandomPolynomial(X, Y, 4)
             max_abs = max(bg.min(), bg.max(), key=abs)
             bg = bg / max_abs
             self.setBackgroundFunction(bg)
@@ -274,8 +276,15 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 I = normalizeImage(self.createSphericalInterferogram(spObj))
                 refI = normalizeImage(self._b*np.cos(spObj))
                 refBG = normalizeImage(bg)
+                
+                # I_bm3d = bm3d(I, 0.0)
+                # plt.subplot(1,2,1)
+                # plt.imshow(I)
+                # plt.subplot(1,2,2)
+                # plt.imshow(I_bm3d)
+                # plt.show()
 
-                chambolleProjection(I, refI, refBG)
+                chambolleProjection(normalizeImage(I - self._n), refI, refBG)
 
                 self.saveInterferogram(I, folder, i)
             else:
@@ -288,7 +297,14 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 )
                 refBG = normalizeImage(bg)
 
-                chambolleProjection(I, refI, refBG)
+                # I_bm3d = bm3d(I, 0.0)
+                # plt.subplot(1,2,1)
+                # plt.imshow(I)
+                # plt.subplot(1,2,2)
+                # plt.imshow(I_bm3d)
+                # plt.show()
+
+                chambolleProjection(normalizeImage(I - self._n), refI, refBG)
 
                 self.saveInterferogram(I, folder, i)
 

@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 from numba import jit
 import numpy as np
 from skimage.restoration import denoise_tv_chambolle
-import time
 
 from normalizeImage import normalizeImage
 
@@ -17,7 +16,7 @@ def divergence(f):
     grad = [np.gradient(f[i], axis=i) for i in range(num_dims)]
     return grad[0] + grad[1]
 
-def chambolleProjection(f, f_ref, bg_ref, iterations = 2000, mi = 100, tau = 0.25):
+def chambolleProjection(f, f_ref, bg_ref, iterations = 1000, mi = 100, tau = 0.25):
     xi = np.array([np.zeros(f.shape), np.zeros(f.shape)])
     x1 = np.zeros(f.shape)
     x2 = np.zeros(f.shape)
@@ -38,6 +37,9 @@ def chambolleProjection(f, f_ref, bg_ref, iterations = 2000, mi = 100, tau = 0.2
         xi = np.divide(xi + tau * gdv, 1 + tau * d)
 
         x2 = mi * divergence(xi)
+        if np.max(f_ref) != 255 and np.min(f_ref) != 0:
+            f_ref = normalizeImage(fref)
+            
         diff_err = normalizeImage(x2) - f_ref
         err_i = np.sqrt(np.mean(np.power(diff_err, 2))) / np.sqrt(np.mean(np.power(f_ref, 2)))
         # err_i = np.linalg.norm(x2 - f_ref) / np.linalg.norm(f_ref)
@@ -48,8 +50,8 @@ def chambolleProjection(f, f_ref, bg_ref, iterations = 2000, mi = 100, tau = 0.2
         # pp.append(g_err / err[0])
         # pr = pp[i]
 
-        if err[i] < err_min:
-            err_min = err[i]
+        if err_i < err_min:
+            err_min = err_i
             err_min_it = i
             x_best = x2
             print("Minimal error: {}, iteration #{}".format(err_min, err_min_it))
@@ -61,16 +63,23 @@ def chambolleProjection(f, f_ref, bg_ref, iterations = 2000, mi = 100, tau = 0.2
     x_best = normalizeImage(x_best)
 
     plt.subplot(2, 2, 1)
+    plt.title("Input For VID")
     plt.imshow(f)
     plt.subplot(2, 2, 2)
+    plt.title("Output of Chambolle Projection with smallest error")
     plt.imshow(x_best)
     plt.subplot(2, 2, 3)
+    plt.title("Texture function")
     plt.imshow(f_ref)
     plt.subplot(2, 2, 4)
+    plt.title("Background function")
     plt.imshow(bg_ref)
     plt.show()
 
     plt.plot(err)
+    plt.title("Chambolle Projection algorithm error through iterations")
+    plt.xlabel("Iteration number - N")
+    plt.ylabel("Relative RMS error")
     plt.show()
 
     return x_best
