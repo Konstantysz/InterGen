@@ -20,7 +20,7 @@ def InterGen(results_folder):
         data['Orientation']['Min_Orientation_Angle'], 
         data['Orientation']['Max_Orientation_Angle']
         )
-    InGen.generateALODI(
+    InGen.generateALODIandLabel(
         data['Frequencies']['Frequencies_Per_Object'], 
         data['Orientation']['Orientations_Per_Object'], 
         data['Number_Of_Images'], 

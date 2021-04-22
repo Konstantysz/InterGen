@@ -1,11 +1,10 @@
+import time
 import matplotlib.pyplot as plt
-from numba import jit
 import numpy as np
 from skimage.restoration import denoise_tv_chambolle
 
 from normalizeImage import normalizeImage
 
-# @jit(nopython=True, parallel=True)
 def divergence(f):
     """
     Computes the divergence of the vector field f, corresponding to dFx/dx + dFy/dy + ...
@@ -16,51 +15,75 @@ def divergence(f):
     grad = [np.gradient(f[i], axis=i) for i in range(num_dims)]
     return grad[0] + grad[1]
 
-def chambolleProjection(f, f_ref, bg_ref, iterations = 1000, mi = 100, tau = 0.25):
+def chambolleProjection(f, f_ref, bg_ref, iterations = 1000, mi = 100, tau = 0.25, tol = 1e-6):
+
+    print(np.min(f))
+    print(np.max(f))
+    print(np.min(f_ref))
+    print(np.max(f_ref))
+
+    if np.max(f_ref) != 1 and np.min(f_ref) != 0:
+        f_ref = normalizeImage(f_ref, normFactor = 1)
+    if np.max(f) != 1 and np.min(f) != 0:
+        f = normalizeImage(f, normFactor = 1)
+    
+    print(np.min(f))
+    print(np.max(f))
+    print(np.min(f_ref))
+    print(np.max(f_ref))
+    
+    # plt.imshow(f)
+    # plt.show()
+    # plt.imshow(f_ref)
+    # plt.show()
+
+    n = 1
     xi = np.array([np.zeros(f.shape), np.zeros(f.shape)])
     x1 = np.zeros(f.shape)
     x2 = np.zeros(f.shape)
     x_best = np.zeros(f.shape)
 
-    err_n = 0.0
-    err = []
-    pp = []
-    pr = 1.0
+    rms_min_A = []
+    rms_min = 1.0
+    it_min = 0    
 
-    err_min = 1.0
-    err_min_it = 0    
-
-    for i in range(iterations):
+    start_time = time.time()
+    while n - it_min < 100:
         gdv = np.array(np.gradient(divergence(xi) - f/mi))
         d = np.sqrt(np.power(gdv[0], 2) + np.power(gdv[1], 2))
         d = np.tile( d, [2, 1, 1] )
         xi = np.divide(xi + tau * gdv, 1 + tau * d)
 
         x2 = mi * divergence(xi)
-        if np.max(f_ref) != 255 and np.min(f_ref) != 0:
-            f_ref = normalizeImage(fref)
-            
-        diff_err = normalizeImage(x2) - f_ref
-        err_i = np.sqrt(np.mean(np.power(diff_err, 2))) / np.sqrt(np.mean(np.power(f_ref, 2)))
-        # err_i = np.linalg.norm(x2 - f_ref) / np.linalg.norm(f_ref)
-        err.append(err_i)
-        # err.append(np.linalg.norm(x2 - x1) / np.linalg.norm(f))
-        # g_err = np.abs((err_n - err[i]) / 2)
-        # err_n = err[i]
-        # pp.append(g_err / err[0])
-        # pr = pp[i]
+        
+        diff = x2 - f_ref
 
-        if err_i < err_min:
-            err_min = err_i
-            err_min_it = i
-            x_best = x2
-            print("Minimal error: {}, iteration #{}".format(err_min, err_min_it))
-            if err_min_it == iterations - 1:
-                iterations = iterations + 100
+        rms_n = np.sqrt(np.var(diff))
+        
+        if len(rms_min_A) < 100:
+            rms_min_A.append(rms_min)
+        else:
+            rms_min_A.pop(0)
+            rms_min_A.append(rms_min)
+
+        if rms_n < rms_min:
+            rms_diff = rms_min_A[0] - rms_min_A[-1]
+            rms_local_diff = rms_min - rms_n
+
+            if ((rms_diff < 10 * tol) and (rms_local_diff < tol)):
+                rms_min = rms_n
+                it_min = n
+                break
+            rms_min = rms_n
+            it_min = n
 
         x1 = x2
+        n = n + 1
 
-    x_best = normalizeImage(x_best)
+    x_best = x2
+
+    print("RMS = {}, Itarations: {}".format(rms_min, it_min))
+    print("--- {} seconds ---".format(time.time() - start_time))
 
     plt.subplot(2, 2, 1)
     plt.title("Input For VID")
@@ -71,15 +94,12 @@ def chambolleProjection(f, f_ref, bg_ref, iterations = 1000, mi = 100, tau = 0.2
     plt.subplot(2, 2, 3)
     plt.title("Texture function")
     plt.imshow(f_ref)
+    plt.subplot(2, 2, 3)
+    plt.title("Input - Output")
+    plt.imshow(f - x_best)
     plt.subplot(2, 2, 4)
     plt.title("Background function")
     plt.imshow(bg_ref)
-    plt.show()
-
-    plt.plot(err)
-    plt.title("Chambolle Projection algorithm error through iterations")
-    plt.xlabel("Iteration number - N")
-    plt.ylabel("Relative RMS error")
     plt.show()
 
     return x_best
