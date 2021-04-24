@@ -2,41 +2,35 @@ from numba import jit
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-from skimage.restoration import denoise_tv_chambolle
-
-from normalizeImage import normalizeImage
 
 def gradient2D(mat):
-    fx = np.concatenate((mat[1:len(mat), :], np.array([mat[-1, :]])), axis = 0) - mat
-    fy = np.concatenate((mat[:, 1:len(mat)], np.array([mat[:, -1]]).transpose()), axis = 1) - mat
-    return np.array([fx, fy])
+    x1 = mat[1:len(mat), :]
+    x2 = np.array([mat[-1, :]])
+    x = np.concatenate((x1, x2), axis = 0)
 
-def divergence2D(mat2):
-    Px = mat2[0]
-    Py = mat2[1]
+    fx = x - mat
+    y1 = mat[:, 1:len(mat)]
+    y2 = np.array([mat[:, -1]]).transpose()
+    y = np.concatenate((y1, y2), axis = 1)
+
+    fy = y - mat
+    return [fx, fy]
+
+def divergence2D(mat):
+    Px = mat[0]
+    Py = mat[1]
 
     fx = Px - np.concatenate((np.array([Px[0, :]]), Px[0:len(Px)-1, :]), axis=0)
-    fx[:, 0] = Px[:,0]
-    fx[:, -1] = -Px[:,-2]
+    fx[0, :] = Px[0,:]
+    fx[-1, :] = -Px[-2,:]
 
     fy = Py - np.concatenate((np.array([Py[:, 0]]).transpose(), Py[:, 0:len(Py)-1]), axis=1)
-    fy[0, :] = Py[0,:]
-    fy[-1, :] = -Py[-2,:]
+    fy[:, 0] = Py[:, 0]
+    fy[:, -1] = -Py[:, -2]
 
-    return fx + fy
+    return arr_sum(fx, fy)
 
-
-def divergence(mat):
-    """
-    Computes the divergence of the vector field f, corresponding to dFx/dx + dFy/dy + ...
-    :param f: List of ndarrays, where every item of the list is one dimension of the vector field
-    :return: Single ndarray of the same shape as each of the items in f, which corresponds to a scalar field
-    """
-    num_dims = len(mat)
-    grad = [np.gradient(mat[i], axis=i) for i in range(num_dims)]
-    return grad[0] + grad[1]
-
-def chambolleProjection(f, f_ref, bg_ref = np.zeros((512,512)), iterations = 1000, mi = 100, tau = 0.25, tol = 1e-5):
+def chambolleProjection(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, tol = 1e-5):
 
     n = 1
     xi = np.array([np.zeros(f.shape), np.zeros(f.shape)])
@@ -48,18 +42,17 @@ def chambolleProjection(f, f_ref, bg_ref = np.zeros((512,512)), iterations = 100
     rms_min = 1.0
     it_min = 0    
 
-    start_time = time.time()
+    # start_time = time.time()
     while n - it_min < 100:
-        gdv = np.array(np.gradient(divergence(xi) - f/mi))
+        gdv = np.array(gradient2D(divergence2D(xi) - f/mi))
         d = np.sqrt(np.power(gdv[0], 2) + np.power(gdv[1], 2))
         d = np.tile( d, [2, 1, 1] )
         xi = np.divide(xi + tau * gdv, 1 + tau * d)
 
-        x2 = mi * divergence(xi)
+        x2 = mi * divergence2D(xi)
         
         diff = x2 - f_ref
-
-        rms_n = np.sqrt(np.var(diff))
+        rms_n = np.sqrt(np.var(diff.flatten()))
         
         if len(rms_min_A) < 100:
             rms_min_A.append(rms_min)
@@ -73,8 +66,6 @@ def chambolleProjection(f, f_ref, bg_ref = np.zeros((512,512)), iterations = 100
 
             if (rms_diff < 10 * tol):
                 if (rms_local_diff < tol):
-                    print(rms_diff)
-                    print(rms_local_diff)
                     rms_min = rms_n
                     it_min = n
                     break
@@ -84,13 +75,9 @@ def chambolleProjection(f, f_ref, bg_ref = np.zeros((512,512)), iterations = 100
 
         x1 = x2
         n = n + 1
-        if (n - it_min >= 100):
-            print("WTF?")
 
     x_best = x2
 
-    # print("RMS = {}, Itarations: {}".format(rms_min, it_min))
-    # print("--- {} seconds ---".format(time.time() - start_time))
 
     # plt.subplot(2, 2, 1)
     # plt.title("Input For VID")
@@ -109,4 +96,4 @@ def chambolleProjection(f, f_ref, bg_ref = np.zeros((512,512)), iterations = 100
     # plt.imshow(bg_ref)
     # plt.show()
 
-    return x_best
+    return [x_best, it_min, rms_min]

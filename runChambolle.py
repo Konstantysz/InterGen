@@ -15,7 +15,12 @@ def runChambolle(results_folder):
     f = np.divide(f - np.min(f), np.max(f) - np.min(f))
     f_ref = np.divide(f_ref - np.min(f_ref), np.max(f_ref) - np.min(f_ref))
 
-    chambolleProjection(f, f_ref)
+    start_time = time.time()
+    [v, i, rms] = chambolleProjection(f, f_ref)
+    stop_time = time.time()
+
+    print("RMS = {}, Itarations: {}".format(rms, i))
+    print("--- {} seconds ---".format(stop_time - start_time))
 
 
 

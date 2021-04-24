@@ -350,8 +350,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 I = self.createSphericalInterferogram(spObj)
                 refI = self._b*np.cos(spObj)
 
-                chambolleProjection(I, refI, bg)
-
+                # chambolleProjection(I, refI, bg)
                 # self.saveInterferogram(refI, folder_fringes, i)
                 # self.saveInterferogram(I, folder_interferogram, i)
             else:
@@ -361,8 +360,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 I = self.createInterferogram(angle, freq, obj)
                 refI = self._b*np.cos(freq * (math.pi / 2 * (math.cos(angle) * self._X + math.sin(angle) * self._Y) + obj))
 
-                chambolleProjection(I, refI, bg)
-                
+                # chambolleProjection(I, refI, bg)
                 # self.saveInterferogram(refI, folder_fringes, i)
                 # self.saveInterferogram(I, folder_interferogram, i)
 
