@@ -44,7 +44,8 @@ def chambolleProjectionGPU(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, to
     rms_min = 1.0
     it_min = 0    
 
-    while n - it_min < 100:
+    for _ in iter(int, 1):
+        
         gdv = cp.array(gradient2DGPU(divergence2DGPU(xi) - f/mi))
         d = cp.sqrt(cp.power(gdv[0], 2) + cp.power(gdv[1], 2))
         d = cp.tile( d, [2, 1, 1] )
@@ -76,6 +77,11 @@ def chambolleProjectionGPU(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, to
 
         x1 = x2
         n = n + 1
+        
+        if n - it_min >= 100:
+            break
+
+        pass
 
     x_best = x2
 

@@ -1,6 +1,7 @@
 # Not include images themselves
 *.bmp
 .vscode/
+*.csv
 
 # VSCode gitignore files
 .DS_Store
