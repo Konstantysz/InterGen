@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 
-from InterferogramGenerator import InterferogramGenerator, InterferogramFromRandomPolynomials
-from generateRandomPolynomial import generateRandomPolynomial
+from Src.InterGen.InterferogramGenerator import InterferogramGenerator, InterferogramFromRandomPolynomials 
+from Src.InterGen.generateRandomPolynomial import generateRandomPolynomial
 
 def InterGen(results_folder):
     settings_file = open('settings.json',)
@@ -29,5 +29,5 @@ def InterGen(results_folder):
 
 if __name__ == "__main__":
     start_time = time.time()
-    InterGen('.\\Results\\')
+    InterGen('.\\Results\\Test')
     print("Execution time: %.2f sec" % (time.time() - start_time))

@@ -3,7 +3,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import time
 
-from chambolleProjection import chambolleProjection
+from Src.Chambolle.chambolleProjection import chambolleProjection
 
 def runChambolle(results_folder):
     INTERFEROGRAM_PATH = results_folder + "Interferogram\\0.bmp"

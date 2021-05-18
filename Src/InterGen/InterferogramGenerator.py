@@ -4,14 +4,12 @@ import math
 from PIL import Image, ImageOps
 import matplotlib.pyplot as plt
 
-from bm3d import bm3d
-
-from gauss_n import gauss_n
-from generateRandomPolynomial import generateRandomPolynomial
-from generateSphericalObject import generateSphericalObject
-from chambolleProjection import chambolleProjection
-from normalizeImage import normalizeImage
-from progressBar import progressBar
+from Src.InterGen.gauss_n import gauss_n
+from Src.InterGen.generateRandomPolynomial import generateRandomPolynomial
+from Src.InterGen.generateSphericalObject import generateSphericalObject
+from Src.InterGen.normalizeImage import normalizeImage
+from Src.InterGen.progressBar import progressBar
+from Src.Chambolle.chambolleProjection import chambolleProjection
 
 class InterferogramGenerator:
     """
@@ -322,7 +320,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
         folder_fringes = folder + "\\Fringes\\"
         folder_interferogram = folder + "\\Interferogram\\"
 
-        for i in range(quantity):
+        for i in range(2000, 2000 + quantity):
             objType = np.random.choice(np.arange(3), p=[0.01, 0.04, 0.95])
             '''
             0 -> Prazki liniowe
@@ -351,8 +349,8 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 refI = self._b*np.cos(spObj)
 
                 # chambolleProjection(I, refI, bg)
-                # self.saveInterferogram(refI, folder_fringes, i)
-                # self.saveInterferogram(I, folder_interferogram, i)
+                self.saveInterferogram(refI, folder_fringes, i)
+                self.saveInterferogram(I, folder_interferogram, i)
             else:
                 freq = np.random.randint(self._minFrequency, self._maxFrequency)
                 angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
@@ -361,7 +359,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 refI = self._b*np.cos(freq * (math.pi / 2 * (math.cos(angle) * self._X + math.sin(angle) * self._Y) + obj))
 
                 # chambolleProjection(I, refI, bg)
-                # self.saveInterferogram(refI, folder_fringes, i)
-                # self.saveInterferogram(I, folder_interferogram, i)
+                self.saveInterferogram(refI, folder_fringes, i)
+                self.saveInterferogram(I, folder_interferogram, i)
 
             progressBar(i + 1, quantity, "Interferogram generation progress: ")

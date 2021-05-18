@@ -1,4 +1,3 @@
-from numba import jit
 import time
 import matplotlib.pyplot as plt
 import numpy as np
@@ -28,7 +27,7 @@ def divergence2D(mat):
     fy[:, 0] = Py[:, 0]
     fy[:, -1] = -Py[:, -2]
 
-    return arr_sum(fx, fy)
+    return fx + fy
 
 def chambolleProjection(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, tol = 1e-5):
 
@@ -42,7 +41,6 @@ def chambolleProjection(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, tol =
     rms_min = 1.0
     it_min = 0    
 
-    # start_time = time.time()
     while n - it_min < 100:
         gdv = np.array(gradient2D(divergence2D(xi) - f/mi))
         d = np.sqrt(np.power(gdv[0], 2) + np.power(gdv[1], 2))
@@ -77,23 +75,5 @@ def chambolleProjection(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, tol =
         n = n + 1
 
     x_best = x2
-
-
-    # plt.subplot(2, 2, 1)
-    # plt.title("Input For VID")
-    # plt.imshow(f)
-    # plt.subplot(2, 2, 2)
-    # plt.title("Output of Chambolle Projection with smallest error")
-    # plt.imshow(x_best)
-    # plt.subplot(2, 2, 3)
-    # plt.title("Texture function")
-    # plt.imshow(f_ref)
-    # plt.subplot(2, 2, 3)
-    # plt.title("Input - Output")
-    # plt.imshow(f - x_best)
-    # plt.subplot(2, 2, 4)
-    # plt.title("Background function")
-    # plt.imshow(bg_ref)
-    # plt.show()
 
     return [x_best, it_min, rms_min]

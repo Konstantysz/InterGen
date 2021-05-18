@@ -1,4 +1,3 @@
-from numba import jit
 import time
 import matplotlib.pyplot as plt
 import numpy as np
@@ -86,3 +85,49 @@ def chambolleProjectionGPU(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, to
     x_best = x2
 
     return [x_best, it_min, rms_min]
+
+def gpuChambolleProjectionStopCriterion(f, mi = 100, tau = 0.25, tol = 1e-5):
+
+    n = 1
+    xi = cp.array([cp.zeros(f.shape), cp.zeros(f.shape)])
+    x1 = cp.zeros(f.shape)
+    x2 = cp.zeros(f.shape)
+    cp.cuda.Stream.null.synchronize()
+
+    err_n = 0
+    err = []
+    pp = []
+    pr = 1
+
+    for _ in iter(int, 1):
+        
+        gdv = cp.array(gradient2DGPU(divergence2DGPU(xi) - f/mi))
+        d = cp.sqrt(cp.power(gdv[0], 2) + cp.power(gdv[1], 2))
+        d = cp.tile( d, [2, 1, 1] )
+        xi = cp.divide(xi + tau * gdv, 1 + tau * d)
+
+        # Reconstruction
+        x2 = mi * divergence2DGPU(xi)
+        # Tolerance
+        num1 = cp.linalg.norm(x2 - x1, 2)
+        num2 = cp.linalg.norm(f, 2)
+        err.append(num1 / num2)
+        
+        g_err = cp.abs((err_n - err[n-1])/2)
+        err_n = err[n-1]
+        pp.append(g_err/err[0])
+        pr = pp[n-1]
+        
+        x1 = x2
+        n = n + 1
+        
+        if pr < tol:
+            break
+
+    # plt.figure()
+    # plt.imshow(f.get())
+    # plt.figure()
+    # plt.imshow(x2.get())
+    # plt.show()
+
+    return [x2, n]

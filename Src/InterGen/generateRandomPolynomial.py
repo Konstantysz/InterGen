@@ -17,8 +17,6 @@ def generateRandomPolynomial(X, Y, n):
         XY.append(Y)
         XY.append(X**(0)*Y**(0))
 
-    # print(len(XY))
-    # XY_list = np.array(XY)
     res = np.zeros(X.shape)
     for i in range(3*n):
         res = res + a[i, i] * XY[i]
