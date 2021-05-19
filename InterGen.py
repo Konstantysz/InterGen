@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import json
 
-from Src.InterGen.InterferogramGenerator import InterferogramGenerator, InterferogramFromRandomPolynomials 
-from Src.InterGen.generateRandomPolynomial import generateRandomPolynomial
+from src.InterferogramGenerator import InterferogramGenerator, InterferogramFromRandomPolynomials 
+from src.generateRandomPolynomial import generateRandomPolynomial
 
 def InterGen(results_folder):
     settings_file = open('settings.json',)

@@ -5,16 +5,21 @@ import matplotlib.pyplot as plt
 import time
 import csv
 
-from Src.Chambolle.chambolleProjectionGPU import chambolleProjectionGPU, gpuChambolleProjectionStopCriterion
+import os, sys, inspect
+cmd_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],".\\Src\\")))
+if cmd_subfolder not in sys.path:
+    sys.path.insert(0, cmd_subfolder)
+
+from src.chambolleProjectionGPU import chambolleProjectionGPU, gpuChambolleProjectionStopCriterion
 
 def runChambolleGPU(results_folder):
     INTERFEROGRAM_PATH = results_folder + "Training\\Interferogram\\"
     FRINGES_PATH = results_folder + "Training\\Fringes\\"
 
-    starting_image = 5000
-    number_of_images = 250
+    starting_image = 5107
+    number_of_images = 393
 
-    csv_file = open(".\\Results\\Labels\\labels_SC_5000_5250.csv", "a")
+    csv_file = open(".\\Results\\Labels\\labels_SC_5000_5500.csv", "a")
     
     try:
         for i in range(starting_image, starting_image+number_of_images):

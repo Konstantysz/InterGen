@@ -4,12 +4,12 @@ import math
 from PIL import Image, ImageOps
 import matplotlib.pyplot as plt
 
-from Src.InterGen.gauss_n import gauss_n
-from Src.InterGen.generateRandomPolynomial import generateRandomPolynomial
-from Src.InterGen.generateSphericalObject import generateSphericalObject
-from Src.InterGen.normalizeImage import normalizeImage
-from Src.InterGen.progressBar import progressBar
-from Src.Chambolle.chambolleProjection import chambolleProjection
+from src.gauss_n import gauss_n
+from src.generateRandomPolynomial import generateRandomPolynomial
+from src.generateSphericalObject import generateSphericalObject
+from src.normalizeImage import normalizeImage
+from src.progressBar import progressBar
+from src.chambolleProjection import chambolleProjection
 
 class InterferogramGenerator:
     """
@@ -193,7 +193,6 @@ class InterferogramGenerator:
             img = Image.fromarray(rescaled)
             filename = folder + str(i + startNum) + '.bmp'
             img.convert('RGB').save(filename)
-
 
 class InterferogramFromRandomPolynomials(InterferogramGenerator):
     """
