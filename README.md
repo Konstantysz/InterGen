@@ -15,6 +15,7 @@ pip install numpy
 pip install matplotlib
 pip install PIL
 pip install numba
+pip install cupy
 ```
 
 ### Running

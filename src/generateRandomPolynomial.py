@@ -3,6 +3,24 @@ import numpy as np
 
 @jit(nopython=True, parallel=True)
 def generateRandomPolynomial(X, Y, n):
+    '''
+    Function that generetes 2D discrete polynomial function distribution of specific order.
+    Boosted with Numba: works in C and with parallel computing.
+
+    Parameters
+    ----------
+    X : numpy.ndarray
+        meshgrided values in X axis
+    Y : numpy.ndarray
+        meshgrided values in Y axis
+    n : int
+        order of polynomial
+        
+    Returns:
+    ----------
+    res : numpy.ndarray
+        matrix of 2D polynomial function distribution
+    '''
     a = (2 * np.random.random_sample((3*n,)) - 1) * np.eye(n*3)
 
     XY = []

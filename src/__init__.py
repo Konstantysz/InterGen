@@ -1,5 +1,5 @@
 # __init__.py
-from .chambolleProjection import chambolleProjection
+from .chambolleProjection import chambolleProjection, chambolleProjectionStopCriterion
 from .chambolleProjectionGPU import chambolleProjectionGPU, gpuChambolleProjectionStopCriterion
 from .gauss_n import gauss_n
 from .generateRandomPolynomial import generateRandomPolynomial

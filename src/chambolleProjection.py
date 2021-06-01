@@ -3,6 +3,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def gradient2D(mat):
+    '''
+    Function to calculate gradient of the 2D square matrix. Works on CPU.
+
+    Copyright (c) Gabriel Peyre
+
+    Parameters
+    ----------
+    mat : numpy.ndarray
+        matrix to calculate gradient
+        
+    Returns:
+    ----------
+    [fx, fy] : cupy.ndarray
+        gradient of `mat`
+    '''
     x1 = mat[1:len(mat), :]
     x2 = np.array([mat[-1, :]])
     x = np.concatenate((x1, x2), axis = 0)
@@ -16,6 +31,21 @@ def gradient2D(mat):
     return [fx, fy]
 
 def divergence2D(mat):
+    '''
+    Function to calculate divergence of the 2D square matrix. Works on CPU.
+
+    Copyright (c) Gabriel Peyre
+
+    Parameters
+    ----------
+    mat : numpy.ndarray
+        matrix to calculate divergence
+
+    Returns:
+    ----------
+    fx + fy : cupy.ndarray
+        divergence of `mat`
+    '''
     Px = mat[0]
     Py = mat[1]
 
@@ -29,8 +59,37 @@ def divergence2D(mat):
 
     return fx + fy
 
-def chambolleProjection(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, tol = 1e-5):
+def chambolleProjection(f, f_ref, mi = 100, tau = 0.25, tol = 1e-5):
+    '''
+    The 2D case of Chambolle projection algorithm. This version uses reference image.
 
+    Source
+    -------
+    Cywińska, Maria, Maciej Trusiak, and Krzysztof Patorski. 
+    "Automatized fringe pattern preprocessing using unsupervised variational image decomposition." Optics express 27.16 (2019): 22542-22562.
+
+    Parameters
+    ----------
+    f : numpy.ndarray
+        image which is input for Chambolle
+    f_ref : numpy.ndarray
+        image og input but perfectly without background function
+    mi : float
+        regularization parameter that defines the separation of the energy between the fringes and noise components
+    tau : float
+        Chambolle projection step value
+    tol : float
+        error tolerance when algorithm should stop its work
+
+    Returns
+    -------
+    x_best : numpy.ndarray
+        image with filtered background function
+    it_min : int
+        number of iterations that was needed to reach result image
+    rms_min : float
+        error of the result image
+    '''
     n = 1
     xi = np.array([np.zeros(f.shape), np.zeros(f.shape)])
     x1 = np.zeros(f.shape)
@@ -77,3 +136,70 @@ def chambolleProjection(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, tol =
     x_best = x2
 
     return [x_best, it_min, rms_min]
+
+def chambolleProjectionStopCriterion(f, mi = 100, tau = 0.25, tol = 1e-5):
+    '''
+    The 2D case of Chambolle projection algorithm. This version uses stop criterion.
+
+    Source
+    -------
+    Cywińska, Maria, Maciej Trusiak, and Krzysztof Patorski. 
+    "Automatized fringe pattern preprocessing using unsupervised variational image decomposition." Optics express 27.16 (2019): 22542-22562.
+
+    Parameters
+    ----------
+    f : numpy.ndarray
+        image which is input for Chambolle
+    mi : float
+        regularization parameter that defines the separation of the energy between the fringes and noise components
+    tau : float
+        Chambolle projection step value
+    tol : float
+        error tolerance when algorithm should stop its work
+
+    Returns
+    -------
+    x2 : numpy.ndarray
+        image with filtered background function
+    n : int
+        number of iterations that was needed to reach result image
+    g_err : float
+        error of the result image
+    '''
+    n = 1
+    xi = np.array([np.zeros(f.shape), np.zeros(f.shape)])
+    x1 = np.zeros(f.shape)
+    x2 = np.zeros(f.shape)
+    np.cuda.Stream.null.synchronize()
+
+    err_n = 0
+    err = []
+    pp = []
+    pr = 1
+
+    for _ in iter(int, 1):
+        
+        gdv = np.array(gradient2D(divergence2D(xi) - f/mi))
+        d = np.sqrt(np.power(gdv[0], 2) + np.power(gdv[1], 2))
+        d = np.tile( d, [2, 1, 1] )
+        xi = np.divide(xi + tau * gdv, 1 + tau * d)
+
+        # Reconstruction
+        x2 = mi * divergence2D(xi)
+        # Tolerance
+        num1 = np.linalg.norm(x2 - x1, 2)
+        num2 = np.linalg.norm(f, 2)
+        err.append(num1 / num2)
+        
+        g_err = np.abs((err_n - err[n-1])/2)
+        err_n = err[n-1]
+        pp.append(g_err/err[0])
+        pr = pp[n-1]
+        
+        x1 = x2
+        n = n + 1
+        
+        if pr < tol:
+            break
+
+    return [x2, n, g_err]

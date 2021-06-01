@@ -3,6 +3,8 @@
 .vscode/
 *.csv
 
+launchChambolle.json
+
 # VSCode gitignore files
 .DS_Store
 .huskyrc.json

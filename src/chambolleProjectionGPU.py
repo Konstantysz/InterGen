@@ -1,9 +1,21 @@
-import time
-import matplotlib.pyplot as plt
-import numpy as np
 import cupy as cp
 
 def gradient2DGPU(mat):
+    '''
+    Function to calculate gradient of the 2D square matrix. Works on GPU.
+
+    Copyright (c) Gabriel Peyre
+
+    Parameters
+    ----------
+    mat : cupy.ndarray
+        matrix to calculate gradient
+        
+    Returns:
+    ----------
+    [fx, fy] : cupy.ndarray
+        gradient of `mat`
+    '''
     x1 = mat[1:len(mat), :]
     x2 = cp.array([mat[-1, :]])
     x = cp.concatenate((x1, x2), axis = 0)
@@ -18,6 +30,21 @@ def gradient2DGPU(mat):
     return [fx, fy]
 
 def divergence2DGPU(mat):
+    '''
+    Function to calculate divergence of the 2D square matrix. Works on GPU.
+
+    Copyright (c) Gabriel Peyre
+
+    Parameters
+    ----------
+    mat : cupy.ndarray
+        matrix to calculate divergence
+
+    Returns:
+    ----------
+    fx + fy : cupy.ndarray
+        divergence of `mat`
+    '''
     Px = mat[0]
     Py = mat[1]
 
@@ -31,8 +58,37 @@ def divergence2DGPU(mat):
 
     return fx + fy
 
-def chambolleProjectionGPU(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, tol = 1e-5):
+def chambolleProjectionGPU(f, f_ref, mi = 100, tau = 0.25, tol = 1e-5):
+    '''
+    The 2D case of Chambolle projection algorithm. This version uses reference image.
 
+    Source
+    -------
+    Cywińska, Maria, Maciej Trusiak, and Krzysztof Patorski. 
+    "Automatized fringe pattern preprocessing using unsupervised variational image decomposition." Optics express 27.16 (2019): 22542-22562.
+
+    Parameters
+    ----------
+    f : cupy.ndarray
+        image which is input for Chambolle
+    f_ref : cupy.ndarray
+        image og input but perfectly without background function
+    mi : float
+        regularization parameter that defines the separation of the energy between the fringes and noise components
+    tau : float
+        Chambolle projection step value
+    tol : float
+        error tolerance when algorithm should stop its work
+
+    Returns
+    -------
+    x_best : numpy.ndarray
+        image with filtered background function
+    it_min : int
+        number of iterations that was needed to reach result image
+    rms_min : float
+        error of the result image
+    '''
     n = 1
     xi = cp.array([cp.zeros(f.shape), cp.zeros(f.shape)])
     x1 = cp.zeros(f.shape)
@@ -87,7 +143,34 @@ def chambolleProjectionGPU(f, f_ref, iterations = 1000, mi = 100, tau = 0.25, to
     return [x_best, it_min, rms_min]
 
 def gpuChambolleProjectionStopCriterion(f, mi = 100, tau = 0.25, tol = 1e-5):
+    '''
+    The 2D case of Chambolle projection algorithm. This version uses stop criterion.
 
+    Source
+    -------
+    Cywińska, Maria, Maciej Trusiak, and Krzysztof Patorski. 
+    "Automatized fringe pattern preprocessing using unsupervised variational image decomposition." Optics express 27.16 (2019): 22542-22562.
+
+    Parameters
+    ----------
+    f : cupy.ndarray
+        image which is input for Chambolle
+    mi : float
+        regularization parameter that defines the separation of the energy between the fringes and noise components
+    tau : float
+        Chambolle projection step value
+    tol : float
+        error tolerance when algorithm should stop its work
+
+    Returns
+    -------
+    x2 : numpy.ndarray
+        image with filtered background function
+    n : int
+        number of iterations that was needed to reach result image
+    g_err : float
+        error of the result image
+    '''
     n = 1
     xi = cp.array([cp.zeros(f.shape), cp.zeros(f.shape)])
     x1 = cp.zeros(f.shape)
@@ -124,10 +207,4 @@ def gpuChambolleProjectionStopCriterion(f, mi = 100, tau = 0.25, tol = 1e-5):
         if pr < tol:
             break
 
-    # plt.figure()
-    # plt.imshow(f.get())
-    # plt.figure()
-    # plt.imshow(x2.get())
-    # plt.show()
-
-    return [x2, n]
+    return [x2, n, g_err]

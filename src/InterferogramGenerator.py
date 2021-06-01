@@ -319,7 +319,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
         folder_fringes = folder + "\\Fringes\\"
         folder_interferogram = folder + "\\Interferogram\\"
 
-        for i in range(2000, 2000 + quantity):
+        for i in range(0, 0 + quantity):
             objType = np.random.choice(np.arange(3), p=[0.01, 0.04, 0.95])
             '''
             0 -> Prazki liniowe
