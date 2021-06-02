@@ -43,8 +43,8 @@ def runChambolle(images_folder, outputFile, version = 1, number_of_images = 1, s
         id of the image from which algorithm should start 
     '''
 
-    INTERFEROGRAM_PATH = images_folder + "Training\\Interferogram\\"
-    FRINGES_PATH = images_folder + "Training\\Fringes\\"
+    INTERFEROGRAM_PATH = images_folder + "Interferogram\\"
+    FRINGES_PATH = images_folder + "Fringes\\"
     OUTPUTFILE = ".\\Results\\Labels\\" + outputFile
 
     csv_file = open(OUTPUTFILE, "a")
@@ -103,8 +103,8 @@ def runChambolleGPU(images_folder, outputFile, version = 1, number_of_images = 1
         id of the image from which algorithm should start 
     '''
 
-    INTERFEROGRAM_PATH = images_folder + "Training\\Interferogram\\"
-    FRINGES_PATH = images_folder + "Training\\Fringes\\"
+    INTERFEROGRAM_PATH = images_folder + "Interferogram\\"
+    FRINGES_PATH = images_folder + "Fringes\\"
     OUTPUTFILE = ".\\Results\\Labels\\" + outputFile
 
     csv_file = open(OUTPUTFILE, "a")
