@@ -207,6 +207,7 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
     generateALODI(numOfFrequencies, numOfOrientations, quantity, folder)
         Method to generate A Lot Of Different Interferograms
     """
+    
     def saveInterferogram(self, image, folder, interferogramNumber):
         '''
         Saves single interferogram
@@ -262,7 +263,6 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
             elif objType == 2:
                 obj = generateRandomPolynomial(X, Y, 3)
 
-            # bg = normalizeImage(generateRandomPolynomial(X, Y, 4) * (0.5 * gauss_n(X, Y)), normFactor = 1)
             bg = generateRandomPolynomial(X, Y, 4) * gauss_n(X, Y)
             self.setBackgroundFunction(bg)
             

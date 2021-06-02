@@ -145,9 +145,6 @@ if __name__ == "__main__":
     print("Number of CUDA compatible devices:")
     print(cuda)
 
-    # Command to run
-    # python runChambolleGPU.py "C:\Users\koste\Desktop\Studia\_STUDIA_MAGISTERSKIE\_PRACA_MAGISTERSKA\uVID\uVID\Dataset\Images\" "output.csv" 0 1 0
-
     if cuda != 0:
         print("Chambolle will run on GPU!")
         runChambolleGPU(args.images_folder, args.output, args.version, args.number_of_images, args.starting_image)

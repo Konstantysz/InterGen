@@ -4,6 +4,7 @@
 *.csv
 
 launchChambolle.json
+run.txt
 
 # VSCode gitignore files
 .DS_Store
