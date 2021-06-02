@@ -19,10 +19,33 @@ pip install cupy
 ```
 
 ### Running
+#### Interferogram genrator
 
-To run this project you have to run `InterGen.py`.
+To run you have to run `runInterGen.py`. With examplary command
+
+```
+python runIntergen.py [folder for results]
+```
+
+For help with parsing arguments
+```
+python runIntergen.py --help
+```
 
 If you want to edit generation parameters modify file `settings.json`.
+
+#### Chambolle labels genrator
+
+To run you have to run `runChambolle.py`. With examplary command
+
+```
+python runChambolle.py [dataset directory] [output] [mode] [number of images] [starting image id]
+```
+
+For help with parsing arguments
+```
+python runChambolle.py --help
+```
 
 ## Authors
 
