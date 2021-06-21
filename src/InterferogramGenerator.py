@@ -143,7 +143,7 @@ class InterferogramGenerator:
         I = self._a + self._b*np.cos(frequency * phi) + self._n
         return (normalizeImage(I, normFactor = absMaxValue) * normalized) + (I * (not normalized))
     
-    def createSphericalInterferogram(self, obj, absMaxValue = 1, normalized = False):
+    def createSphericalInterferogram(self, obj, frequency = 1.0, absMaxValue = 1, normalized = False):
         '''
         Returns single interferogram image of spherical fringes
 
@@ -152,7 +152,7 @@ class InterferogramGenerator:
         obj : ndArray
             shift of sphere in x axis
         '''
-        I = self._a + self._b*np.cos(obj) + self._n
+        I = self._a + self._b*np.cos(frequency * obj) + self._n
         return (normalizeImage(I, normFactor = absMaxValue) * normalized) + (I * (not normalized))
     
     def createMultipleInterferograms(self, phaseObject, numOfFrequencies, numOfOrientations):
@@ -292,6 +292,84 @@ class InterferogramFromRandomPolynomials(InterferogramGenerator):
                 self.saveInterferogram(I, folder_interferogram, i)
 
             progressBar(i + 1, quantity, "Interferogram generation progress: ")
+
+    def generateALODI2(self, numOfFrequencies, quantity, folder, no_noise = True):
+        '''
+        Generates multiple interferograms. Quantity is specified by user. 
+        Interferograms are generated with random object in phase and random background function.
+
+        Attributes
+        ----------
+        numOfFrequencies : int
+            number of different frequencies of fringe pattern that single pattern will be generated with
+        quantity : int
+            number of all generated interferograms
+        folder : str
+            path to folder in which image will be saved
+        no_noise : bool
+            set to True to generate without noise function
+        '''
+        x = np.linspace(-1, 1, self._size)
+        y = np.linspace(-1, 1, self._size)
+        X, Y = np.meshgrid(x, y)
+
+        folder_interferogram = folder
+
+        imgNum = int(quantity / numOfFrequencies)
+
+        for i in range(imgNum):
+            objType = np.random.choice(np.arange(3), p=[0.01, 0.09, 0.90])
+            '''
+            0 -> Prazki liniowe
+            1 -> Prazki kolowe
+            2 -> Prazki wielomianowe stopnia najwyzej 3
+            '''
+            if objType == 0:
+                obj = generateRandomPolynomial(X, Y, 1)
+            elif objType == 2:
+                obj = generateRandomPolynomial(X, Y, 3)
+
+            if no_noise:
+                self.setNoiseFunction(np.zeros(X.shape)) # For Chambolle
+                    
+            freqScalar = (self._maxFrequency - self._minFrequency) / numOfFrequencies
+            
+            if objType == 1:
+                x0 = np.random.uniform(-0.5, 0.5)
+                y0 = np.random.uniform(-0.5, 0.5)
+                f = np.random.randint(0.5 * self._minFrequency, 2 * self._maxFrequency)
+                h = np.random.randint(-3, 3)
+
+                spObj = generateSphericalObject(X, Y, x0, y0, f, h)
+
+                for j in range(1, numOfFrequencies+1):
+                    # Background parameters
+                    mu_x = (1.0 + 0.5) * np.random.random_sample() - 0.5
+                    mu_y = (1.0 + 0.5) * np.random.random_sample() - 0.5
+                    amp = (1 - 0.5) * np.random.random_sample() + 0.5
+                    sigma = (4.5 - 1.5) * np.random.random_sample() + 1.5
+                    bg = gauss_n(X, Y, mu_x, mu_y, amp, sigma)
+                    self.setBackgroundFunction(bg)
+
+                    freq = freqScalar * j / 2
+                    I = self.createSphericalInterferogram(spObj, freq)
+                    self.saveInterferogram(I, folder_interferogram, i * numOfFrequencies + j)
+                    progressBar(i * numOfFrequencies + j, quantity, "Interferogram generation progress: ")
+            else:
+                for j in range(1, numOfFrequencies+1):
+                    # Background parameters
+                    mu_x = (1.0 + 0.5) * np.random.random_sample() - 0.5
+                    mu_y = (1.0 + 0.5) * np.random.random_sample() - 0.5
+                    amp = (1 - 0.5) * np.random.random_sample() + 0.5
+                    sigma = (4.5 - 1.5) * np.random.random_sample() + 1.5
+                    bg = gauss_n(X, Y, mu_x, mu_y, amp, sigma)
+                    self.setBackgroundFunction(bg)
+
+                    angle = np.random.randint(self._minOrientationAngle, self._maxOrientationAngle)
+                    freq = freqScalar * j
+                    I = self.createInterferogram(angle, freq, obj)
+                    self.saveInterferogram(I, folder_interferogram, i * numOfFrequencies + j)
+                    progressBar(i * numOfFrequencies + j, quantity, "Interferogram generation progress: ")
 
 
     def generateALODIandLabel(self, numOfFrequencies, numOfOrientations, quantity, folder, no_noise = True):

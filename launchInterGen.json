@@ -1,10 +1,10 @@
 {
     "Image_Size": 512,
-    "Number_Of_Images": 10,
+    "Number_Of_Images": 60,
     "Frequencies": {
-        "Frequencies_Per_Object": 1,
-        "Min_Frequency": 15,
-        "Max_Frequency": 30
+        "Frequencies_Per_Object": 15,
+        "Min_Frequency": 10,
+        "Max_Frequency": 40
     },
     "Orientation": {
         "Orientations_Per_Object": 1,
