@@ -1,6 +1,6 @@
 # InterGen
 
-Python interferogram generator.
+Python interferogram generator. This set of scripts was created as the neural network training datasets generator for the paper: "DeepVID: deep-learning accelerated variational image decomposition model tailored to fringe pattern filtration".
 
 ## Getting Started
 
